@@ -1,0 +1,33 @@
+name: Windows
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  x86_64:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Update
+      run: |
+        sudo apt update
+        sudo apt install -y mingw-w64
+
+    - name: Build
+      working-directory: src
+      run: |
+        make CROSS=x86_64-w64-mingw32-
+        mkdir -p ../bin
+        mv build/bin/x86_64-w64-mingw32-luajit-runtime ../bin/luajit-runtime-x86_64.exe
+
+    - name: Release
+      uses: marvinpinto/action-automatic-releases@latest
+      with:
+        automatic_release_tag: windows
+        title: Windows
+        files: bin/luajit-runtime-x86_64.exe
+        repo_token: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,26 @@
+name: OSX
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  x86_64:
+    runs-on: macOS-10.15
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Build
+      run: |
+        make install PREFIX=$PWD MACOSX_DEPLOYMENT_TARGET=10.15
+        mv bin/luajit-runtime bin/luajit-runtime-x86_64
+
+    - name: Release
+      uses: marvinpinto/action-automatic-releases@latest
+      with:
+        automatic_release_tag: osx
+        title: OSX
+        files: bin/luajit-runtime-x86_64
+        repo_token: ${{ secrets.GITHUB_TOKEN }}

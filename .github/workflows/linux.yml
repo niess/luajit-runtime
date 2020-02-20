@@ -1,0 +1,31 @@
+name: Linux
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  x86_64:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Build
+      run: |
+        SCRIPT=$(cat <<-END
+          cd /work
+          make install PREFIX=\$(pwd)
+          mv bin/luajit-runtime bin/luajit-runtime-x86_64
+        END)
+        docker run --mount type=bind,source=$(pwd),target=/work                \
+                   quay.io/pypa/manylinux2010_x86_64 /bin/bash -c "${SCRIPT}"
+
+    - name: Release
+      uses: marvinpinto/action-automatic-releases@latest
+      with:
+        automatic_release_tag: linux
+        title: Linux
+        files: bin/luajit-runtime-x86_64
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
